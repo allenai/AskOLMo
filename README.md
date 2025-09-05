@@ -18,11 +18,6 @@ You can:
 - Continue other people's conversations
 - @ the bot while replying to ANY message to include it in the conversation
 
-Additionally:
-- When DMing the bot, conversations continue automatically (no reply required). To start a fresh conversation, just @ the bot. You can still reply to continue from anywhere.
-- You can branch conversations into [threads](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
-- Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
-
 ---
 
 ### Model switching with `/model`:
@@ -55,7 +50,7 @@ All models are served through Ai2's Cirrascale infrastructure for reliable acces
 ### Prerequisites
 - Python 3.10+
 - Discord bot token and application
-- Ai2 API access (optional - models work without API key)
+- Ai2 API access
 - Google Cloud API key (optional - for content moderation)
 
 ### Installation
