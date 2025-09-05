@@ -5,6 +5,17 @@
 <h3 align="center"><i>
 Discord Bot for Ai2's OLMo Models
 </i></h3>
+<p align="center">
+  <a href="https://discord.gg/sZq3jTNVNG">
+    <img alt="Discord" src="https://img.shields.io/badge/Discord%20-%20blue?style=flat&logo=discord&label=Ai2&color=%235B65E9">
+  </a>
+  <a href="https://playground.allenai.org">
+    <img alt="Playground" src="https://img.shields.io/badge/Ai2-Playground-F0529C">
+  </a>
+  <a href="https://github.com/allenai/AskOLMo/blob/main/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/allenai/AskOLMo">
+  </a>
+</p>
 
 AskOLMo is a Discord bot that brings Ai2's OLMo language models directly to your Discord server. Built specifically for interacting with OLMo models through Ai2's Cirrascale endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
 
