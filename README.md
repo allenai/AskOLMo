@@ -17,7 +17,7 @@ Discord Bot for Ai2's OLMo Models
   </a>
 </p>
 
-AskOLMo is a Discord bot that brings Ai2's OLMo language models directly to your Discord server. Built specifically for interacting with OLMo models through Ai2's Cirrascale endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
+AskOLMo is a Discord bot that brings Ai2's OLMo language models directly to your Discord server. Built specifically for interacting with OLMo models through [Cirrascale](https://ai2endpoints.cirrascale.ai/home) endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
 
 ## Features
 
@@ -40,7 +40,7 @@ Switch between different OLMo model variants:
 - **OLMo-2-1124-7B-Instruct** - 7B parameter instruction-tuned model
 - **OLMo-2-0425-1B-Instruct** - 1B parameter instruction-tuned model (fastest)
 
-All models are served through Ai2's Cirrascale infrastructure for reliable access.
+All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/home) infrastructure for reliable access.
 
 ---
 
