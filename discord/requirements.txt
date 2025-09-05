@@ -1,0 +1,6 @@
+discord.py>=2.3.0
+httpx>=0.24.0
+numpy>=1.24.0
+PyYAML>=6.0
+openai>=1.0.0
+google-cloud-language>=2.13.0

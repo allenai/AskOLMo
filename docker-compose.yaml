@@ -1,0 +1,15 @@
+version: '3'
+services:
+  discord:
+    build: ./discord
+    volumes:
+      - ./discord:/discord
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_ADMIN_IDS=${DISCORD_ADMIN_IDS}
+      - DISCORD_ALLOWED_GUILD_IDS=${DISCORD_ALLOWED_GUILD_IDS}
+      - GOOGLE_CLOUD_API_KEY=${GOOGLE_CLOUD_API_KEY}
+      - ALLENAI_API_KEY=${ALLENAI_API_KEY}
+    restart: unless-stopped
