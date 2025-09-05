@@ -13,9 +13,9 @@ from typing import Any, Literal, Optional
 
 import httpx
 import yaml
-from google_moderation_text import GoogleModerateText
 from openai import AsyncOpenAI
-from src.message.SafetyChecker import SafetyCheckRequest
+from safety.google_moderation_text import GoogleModerateText
+from safety.SafetyChecker import SafetyCheckRequest
 
 import discord
 from discord.app_commands import Choice
@@ -151,33 +151,39 @@ class AskOLMoRateLimiter:
     """
     Rate limiter to enforce message limits per user per hour.
     """
-    
+
     def __init__(self, config: dict[str, Any]):
-        self.max_messages_per_hour = config.get("rate_limit", {}).get("max_messages_per_hour", 10)
+        self.max_messages_per_hour = config.get("rate_limit", {}).get(
+            "max_messages_per_hour", 10
+        )
         self.user_message_history = defaultdict(list)
-    
+
     def is_rate_limited(self, user_id: int) -> bool:
         now = datetime.now()
         one_hour_ago = now - timedelta(hours=1)
         self.user_message_history[user_id] = [
-            timestamp for timestamp in self.user_message_history[user_id]
+            timestamp
+            for timestamp in self.user_message_history[user_id]
             if timestamp > one_hour_ago
         ]
-        
+
         return len(self.user_message_history[user_id]) >= self.max_messages_per_hour
-    
+
     def add_message(self, user_id: int) -> None:
         self.user_message_history[user_id].append(datetime.now())
-    
+
     def get_remaining_messages(self, user_id: int) -> int:
         now = datetime.now()
         one_hour_ago = now - timedelta(hours=1)
         self.user_message_history[user_id] = [
-            timestamp for timestamp in self.user_message_history[user_id]
+            timestamp
+            for timestamp in self.user_message_history[user_id]
             if timestamp > one_hour_ago
         ]
-        return max(0, self.max_messages_per_hour - len(self.user_message_history[user_id]))
-    
+        return max(
+            0, self.max_messages_per_hour - len(self.user_message_history[user_id])
+        )
+
     def cleanup_old_data(self) -> None:
         now = datetime.now()
         one_hour_ago = now - timedelta(hours=1)
@@ -188,7 +194,7 @@ class AskOLMoRateLimiter:
                 users_to_remove.append(user_id)
             else:
                 self.user_message_history[user_id] = filtered_timestamps
-        
+
         for user_id in users_to_remove:
             del self.user_message_history[user_id]
 
@@ -263,7 +269,9 @@ class AskOLMoResponseGenerator:
     Generates responses for Discord messages using Ai2 models through Cirrascale.
     """
 
-    def __init__(self, config: dict[str, Any], message_processor: "AskOLMoMessageProcessor"):
+    def __init__(
+        self, config: dict[str, Any], message_processor: "AskOLMoMessageProcessor"
+    ):
         self.config = config
         self.httpx_client = httpx.AsyncClient()
         self.last_task_time = 0
@@ -672,7 +680,9 @@ class AskOLMo:
         self.permission_manager = AskOLMoPermissionManager(self.config)
         self.rate_limiter = AskOLMoRateLimiter(self.config)
         self.message_processor = AskOLMoMessageProcessor(self.config)
-        self.response_generator = AskOLMoResponseGenerator(self.config, self.message_processor)
+        self.response_generator = AskOLMoResponseGenerator(
+            self.config, self.message_processor
+        )
 
         try:
             self.safety_checker = GoogleModerateText()
@@ -809,22 +819,26 @@ class AskOLMo:
 
         if not self.permission_manager.is_admin(new_msg.author.id):
             if self.rate_limiter.is_rate_limited(new_msg.author.id):
-                remaining_messages = self.rate_limiter.get_remaining_messages(new_msg.author.id)
+                remaining_messages = self.rate_limiter.get_remaining_messages(
+                    new_msg.author.id
+                )
                 embed = discord.Embed(
                     title="Rate Limit Exceeded",
                     description=f"You have reached the maximum of {self.rate_limiter.max_messages_per_hour} messages per hour. Please wait before sending another message.",
-                    color=discord.Color.red()
+                    color=discord.Color.red(),
                 )
                 embed.add_field(
                     name="Ai2 Playground",
                     value="Visit the [Ai2 Playground](https://playground.allenai.org) to continue interacting with our models.",
-                    inline=False
+                    inline=False,
                 )
-                embed.set_footer(text="Rate limit resets every hour from your first message.")
-                
+                embed.set_footer(
+                    text="Rate limit resets every hour from your first message."
+                )
+
                 await new_msg.reply(embed=embed, silent=True)
                 return
-            
+
             self.rate_limiter.add_message(new_msg.author.id)
 
         if self.safety_checker and new_msg.content.strip():
@@ -892,9 +906,11 @@ class AskOLMo:
     async def handle_guild_join(self, guild: discord.Guild):
         """Handle when the bot joins a new guild - leave if not authorized"""
         allowed_guilds = self.config.get("allowed_guild_ids", [])
-        
+
         if allowed_guilds and guild.id not in allowed_guilds:
-            logging.warning(f"Bot added to unauthorized guild {guild.name} ({guild.id}). Leaving...")
+            logging.warning(
+                f"Bot added to unauthorized guild {guild.name} ({guild.id}). Leaving..."
+            )
             try:
                 await guild.leave()
                 logging.info(f"Successfully left unauthorized guild {guild.name}")

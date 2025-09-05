@@ -7,12 +7,8 @@ from google.cloud.language_v2 import (
     ModerateTextRequest,
     ModerateTextResponse,
 )
-from src.config import get_config
-from src.message.SafetyChecker import (
-    SafetyChecker,
-    SafetyCheckRequest,
-    SafetyCheckResponse,
-)
+from safety.config import get_config
+from safety.SafetyChecker import SafetyChecker, SafetyCheckRequest, SafetyCheckResponse
 
 
 class GoogleModerateTextResponse(SafetyCheckResponse):
