@@ -13,7 +13,7 @@ Discord Bot for Ai2's OLMo Models
     <img alt="Playground" src="https://img.shields.io/badge/Ai2-Playground-F0529C">
   </a>
   <a href="https://github.com/allenai/AskOLMo/blob/main/LICENSE">
-    <img alt="GitHub License" src="https://img.shields.io/github/license/allenai/AskOLMo">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/allenai/OLMo-core">
   </a>
 </p>
 
