@@ -73,14 +73,19 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
    ```
 
 2. **Install dependencies:**
+
+   We recommend creating and activating a virtual environment for development and testing.
+
    ```bash
-   cd discord
-   pip install -r requirements.txt
+   # Using Pip
+   pip install -e .
+   # Or optionally using uv
+   uv pip install -e .
    ```
 
 3. **Configure the bot:**
-   
-   Edit `discord/config.yaml` with your settings:
+
+   Edit `config.yaml` with your settings:
 
    ```yaml
    discord:
@@ -88,36 +93,36 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
      client_id: "YOUR_DISCORD_CLIENT_ID"
      status_message: "I am OLMo chatbot."
      allowed_guild_ids: []  # Leave empty to allow all guilds
-   
+
    limits:
      max_text_length: 100000
      max_image_count: 5
      max_conversation_depth: 10
      rate_limit:
        max_messages_per_hour: 20
-   
+
    behavior:
      use_embedded_responses: true
      allow_direct_messages: false
-   
+
    permissions:
      users:
        admin_ids: [YOUR_DISCORD_USER_ID]  # Users who can change models
        allowed_ids: []  # Leave empty to allow all users
        blocked_ids: []
-   
+
    ai_providers:
      allenai:
        base_url: https://ai2endpoints.cirrascale.ai/api
-       api_key: "" 
-   
+       api_key: ""
+
    ai_models:
      allenai/OLMo-2-1124-13B-Instruct:
        temperature: 0.7
      allenai/OLMo-2-0325-32B-Instruct:
        temperature: 0.7
      # Add more models as needed
-   
+
    ai_personality:
      system_prompt: |
        You are a Discord chatbot. Be informative and friendly.
@@ -154,8 +159,9 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
 
 1. **Start the bot:**
    ```bash
-   cd discord
-   python discord_chat.py
+   askolmo
+   # or
+   uv run askolmo
    ```
 
 2. **With Docker:**
@@ -209,3 +215,13 @@ export DISCORD_ADMIN_IDS="user1,user2"
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
+
+AskOLMo uses ruff for style and correctness checks.
+
+```sh
+# Lint checks
+ruff check .
+# Format and sort imports
+ruff format .
+ruff check --select I --fix .
+```

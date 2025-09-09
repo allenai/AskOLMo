@@ -1,9 +1,9 @@
 version: '3'
 services:
   discord:
-    build: ./discord
+    build: .
     volumes:
-      - ./discord:/discord
+      - .:/discord
     environment:
       - PYTHONUNBUFFERED=1
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}

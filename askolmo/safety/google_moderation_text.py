@@ -7,8 +7,13 @@ from google.cloud.language_v2 import (
     ModerateTextRequest,
     ModerateTextResponse,
 )
-from safety.config import get_config
-from safety.SafetyChecker import SafetyChecker, SafetyCheckRequest, SafetyCheckResponse
+
+from askolmo.safety.config import get_config
+from askolmo.safety.SafetyChecker import (
+    SafetyChecker,
+    SafetyCheckRequest,
+    SafetyCheckResponse,
+)
 
 
 class GoogleModerateTextResponse(SafetyCheckResponse):
