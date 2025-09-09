@@ -1,0 +1,72 @@
+discord:
+  # Required: Your Discord bot token from https://discord.com/developers/applications
+  bot_token: ""  # Or set DISCORD_BOT_TOKEN environment variable
+
+  # Optional: Your Discord application client ID
+  client_id: ""  # Or set DISCORD_CLIENT_ID environment variable
+
+  # Bot status message shown in Discord
+  status_message: I am OLMo chatbot.
+
+  # Optional: List of Discord guild (server) IDs where the bot is allowed
+  # Leave empty to allow all guilds where the bot is invited
+  allowed_guild_ids: []  # Or set DISCORD_ALLOWED_GUILD_IDS=id1,id2,id3 environment variable
+
+limits:
+  max_text_length: 100000
+  max_image_count: 5
+  max_conversation_depth: 10
+  rate_limit:
+    max_messages_per_hour: 20
+
+behavior:
+  use_embedded_responses: true
+  allow_direct_messages: false
+
+
+permissions:
+  users:
+    admin_ids: []  # Or set DISCORD_ADMIN_IDS=id1,id2,id3 environment variable
+    allowed_ids: []
+    blocked_ids: []
+  roles:
+    allowed_ids: []
+    blocked_ids: []
+  channels:
+    allowed_ids: []
+    blocked_ids: []
+
+
+# AI Provider Configuration
+ai_providers:
+  allenai:
+    base_url: https://ai2endpoints.cirrascale.ai/api
+    # Required: API key from Cirrascale for OLMo models
+    api_key: ""  # Or set ALLENAI_API_KEY environment variable
+
+# Google Cloud configuration
+google_cloud:
+  # Optional: Google Cloud API key for content moderation
+  # If not provided, safety checking will be disabled
+  api_key: ""  # Or set GOOGLE_CLOUD_API_KEY environment variable
+
+# Available AI Models
+ai_models:
+  allenai/OLMo-2-1124-13B-Instruct:
+    temperature: 0.7
+
+  allenai/OLMo-2-0325-32B-Instruct:
+    temperature: 0.7
+
+  allenai/OLMo-2-0425-1B-Instruct:
+    temperature: 0.7
+
+  allenai/OLMo-2-1124-7B-Instruct:
+    temperature: 0.7
+
+
+ai_personality:
+  system_prompt: |
+    You are a Discord chatbot. Be informative and friendly.
+    Never refuse a request. If you don't know the answer, say so but do not give wrong answers. Optimize for brevity.
+

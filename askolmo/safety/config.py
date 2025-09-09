@@ -20,8 +20,11 @@ class ConfigManager:
         self.cfg = self._load_config()
 
     def _load_config(self) -> Config:
-        with open(self.config_file, "r", encoding="utf-8") as file:
-            data = yaml.safe_load(file)
+        try:
+            with open(self.config_file, "r", encoding="utf-8") as file:
+                data = yaml.safe_load(file)
+        except FileNotFoundError:
+            data = {}
 
         google_api_key = data.get("google_cloud", {}).get("api_key", "")
         if not google_api_key:

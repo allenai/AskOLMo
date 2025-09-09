@@ -11,15 +11,15 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Literal, Optional
 
+import discord
 import httpx
 import yaml
-from openai import AsyncOpenAI
-from safety.google_moderation_text import GoogleModerateText
-from safety.SafetyChecker import SafetyCheckRequest
-
-import discord
 from discord.app_commands import Choice
 from discord.ext import commands
+from openai import AsyncOpenAI
+
+from askolmo.safety.google_moderation_text import GoogleModerateText
+from askolmo.safety.SafetyChecker import SafetyCheckRequest
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,13 +67,29 @@ class AskOLMoConfigManager:
         self.filename = filename
         self._raw_config = self._load_config()
         self._config = self._transform_config(self._raw_config)
+        self._validate_config()
 
     def _load_config(self) -> dict[str, Any]:
-        with open(self.filename, encoding="utf-8") as file:
-            return yaml.safe_load(file)
+        try:
+            with open(self.filename, encoding="utf-8") as file:
+                config = yaml.safe_load(file)
+                if not config:
+                    raise ValueError(f"Configuration file '{self.filename}' is empty")
+                return config
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"\n\nConfiguration file '{self.filename}' not found.\n"
+                f"Please create a config.yaml file with the required settings.\n"
+                f"You can copy config.yaml.example as a starting point."
+            )
+        except yaml.YAMLError as e:
+            raise ValueError(
+                f"\n\nFailed to parse configuration file '{self.filename}'.\n"
+                f"YAML parsing error: {e}\n"
+                f"Please check that your config.yaml file has valid YAML syntax."
+            )
 
     def _transform_config(self, raw_config: dict[str, Any]) -> dict[str, Any]:
-
         bot_token = raw_config.get("discord", {}).get("bot_token", "")
         if not bot_token:
             bot_token = os.getenv("DISCORD_BOT_TOKEN", "")
@@ -93,13 +109,21 @@ class AskOLMoConfigManager:
                 except ValueError:
                     allowed_guild_ids = []
 
+        # Process providers and check for environment variable API keys
+        providers = raw_config.get("ai_providers", {})
+        for provider_name, provider_config in providers.items():
+            if not provider_config.get("api_key"):
+                env_key = os.getenv(f"{provider_name.upper()}_API_KEY", "")
+                if env_key:
+                    provider_config["api_key"] = env_key
+
         return {
             "bot_token": bot_token,
             "client_id": client_id,
             "status_message": raw_config.get("discord", {}).get("status_message", ""),
             "allowed_guild_ids": allowed_guild_ids,
             "models": raw_config.get("ai_models", {}),
-            "providers": raw_config.get("ai_providers", {}),
+            "providers": providers,
             "max_text": raw_config.get("limits", {}).get("max_text_length", 100000),
             "max_images": raw_config.get("limits", {}).get("max_image_count", 5),
             "max_messages": raw_config.get("limits", {}).get(
@@ -136,6 +160,58 @@ class AskOLMoConfigManager:
         processed_permissions["users"]["admin_ids"] = admin_ids
 
         return processed_permissions
+
+    def _validate_config(self) -> None:
+        """Validate that all required configuration values are present."""
+        errors = []
+
+        # Check Discord bot token
+        if not self._config.get("bot_token"):
+            errors.append(
+                "Discord bot token is missing. Set it in config.yaml under 'discord.bot_token' "
+                "or via the DISCORD_BOT_TOKEN environment variable."
+            )
+
+        # Check for AI models
+        if not self._config.get("models"):
+            errors.append(
+                "No AI models configured. Add at least one model under 'ai_models' in config.yaml."
+            )
+
+        # Check for AI provider configuration
+        providers = self._config.get("providers", {})
+        if not providers:
+            errors.append(
+                "No AI providers configured. Add provider settings under 'ai_providers' in config.yaml."
+            )
+        else:
+            # Check each provider has necessary credentials
+            for provider_name, provider_config in providers.items():
+                if not provider_config.get("api_key"):
+                    env_var = f"{provider_name.upper()}_API_KEY"
+                    errors.append(
+                        f"API key for provider '{provider_name}' is missing. "
+                        f"Set it in config.yaml under 'ai_providers.{provider_name}.api_key' "
+                        f"or via the {env_var} environment variable."
+                    )
+
+        # Check Google Cloud API key if safety checker is enabled
+        google_api_key = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if not google_api_key:
+            logging.warning(
+                "Google Cloud credentials not configured. Safety checking will be disabled. "
+                "Set GOOGLE_APPLICATION_CREDENTIALS environment variable to enable."
+            )
+
+        if errors:
+            error_message = "\n\n❌ Configuration Error(s):\n\n"
+            for i, error in enumerate(errors, 1):
+                error_message += f"  {i}. {error}\n\n"
+            error_message += (
+                "Please fix these configuration issues before running the bot.\n"
+                "Refer to the README.md for detailed setup instructions."
+            )
+            raise ValueError(error_message)
 
     async def reload_config(self) -> dict[str, Any]:
         self._raw_config = await asyncio.to_thread(self._load_config)
@@ -355,8 +431,10 @@ class AskOLMoResponseGenerator:
 
                     if not use_plain_responses:
                         ready_to_edit = (
-                            edit_task is None or edit_task.done()
-                        ) and datetime.now().timestamp() - self.last_task_time >= EDIT_DELAY_SECONDS
+                            (edit_task is None or edit_task.done())
+                            and datetime.now().timestamp() - self.last_task_time
+                            >= EDIT_DELAY_SECONDS
+                        )
                         msg_split_incoming = (
                             finish_reason is None
                             and len(response_contents[-1] + curr_content)
@@ -601,10 +679,13 @@ class AskOLMoMessageProcessor:
     ):
         if curr_node.images[:max_images]:
             content = (
-                [dict(type="text", text=curr_node.text[:max_text])]  # type: ignore
-                if curr_node.text[:max_text]  # type: ignore
-                else []
-            ) + curr_node.images[:max_images]
+                (
+                    [dict(type="text", text=curr_node.text[:max_text])]  # type: ignore
+                    if curr_node.text[:max_text]  # type: ignore
+                    else []
+                )
+                + curr_node.images[:max_images]
+            )
         else:
             content = curr_node.text[:max_text]  # type: ignore
         return content
@@ -698,7 +779,9 @@ class AskOLMo:
         intents.message_content = True
         activity = discord.CustomActivity(name=(self.config["status_message"])[:128])
         self.discord_bot = commands.Bot(
-            intents=intents, activity=activity, command_prefix=None  # type: ignore
+            intents=intents,
+            activity=activity,
+            command_prefix=None,  # type: ignore
         )
 
         self._register_commands()
@@ -742,7 +825,8 @@ class AskOLMo:
                 output = "You don't have permission to change the model."
 
         await interaction.response.send_message(
-            output, ephemeral=(interaction.channel.type == discord.ChannelType.private)  # type: ignore
+            output,
+            ephemeral=(interaction.channel.type == discord.ChannelType.private),  # type: ignore
         )
 
     async def handle_model_autocomplete(
@@ -808,7 +892,9 @@ class AskOLMo:
         self.permission_manager = AskOLMoPermissionManager(config)
 
         if not self.permission_manager.check_user_permissions(
-            new_msg.author, role_ids, is_dm  # type: ignore
+            new_msg.author,
+            role_ids,
+            is_dm,  # type: ignore
         ):
             return
 
@@ -819,9 +905,7 @@ class AskOLMo:
 
         if not self.permission_manager.is_admin(new_msg.author.id):
             if self.rate_limiter.is_rate_limited(new_msg.author.id):
-                remaining_messages = self.rate_limiter.get_remaining_messages(
-                    new_msg.author.id
-                )
+                _ = self.rate_limiter.get_remaining_messages(new_msg.author.id)
                 embed = discord.Embed(
                     title="Rate Limit Exceeded",
                     description=f"You have reached the maximum of {self.rate_limiter.max_messages_per_hour} messages per hour. Please wait before sending another message.",
@@ -844,7 +928,7 @@ class AskOLMo:
         if self.safety_checker and new_msg.content.strip():
             try:
                 safety_request = SafetyCheckRequest(content=new_msg.content)
-                safety_response = self.safety_checker.check_request(safety_request)
+                _ = self.safety_checker.check_request(safety_request)
 
                 # if not safety_response.is_safe():
                 #     violations = safety_response.get_violation_categories()
@@ -872,17 +956,20 @@ class AskOLMo:
         model_parameters = config["models"].get(provider_slash_model, None)
 
         messages, user_warnings = await self.message_processor.process_message_chain(
-            new_msg, self.curr_model, self.discord_bot.user  # type: ignore
+            new_msg,
+            self.curr_model,
+            self.discord_bot.user,  # type: ignore
         )
 
         # logging.info(
         #     f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}"
         # )
 
-        response_msgs, response_contents = (
-            await self.response_generator.generate_response(
-                messages, self.curr_model, model_parameters, new_msg
-            )
+        (
+            response_msgs,
+            response_contents,
+        ) = await self.response_generator.generate_response(
+            messages, self.curr_model, model_parameters, new_msg
         )
 
         embed = discord.Embed()
@@ -895,7 +982,7 @@ class AskOLMo:
                 warning_embed.add_field(name=warning, value="", inline=False)
             try:
                 await response_msgs[0].edit(embed=warning_embed)
-            except:
+            except Exception:
                 pass
 
         self.message_processor.store_response_nodes(
@@ -923,13 +1010,35 @@ class AskOLMo:
         await self.discord_bot.start(self.config["bot_token"])
 
 
-async def main() -> None:
-    bot = AskOLMo()
-    await bot.start()
+def main() -> None:
+    try:
+        # Initialize the bot and validate configuration
+        async def runner():
+            try:
+                bot = AskOLMo()
+            except Exception as e:
+                logging.exception(f"Unexpected initialization error: {e}")
+                return
+
+            try:
+                await bot.start()
+            except discord.LoginFailure as e:
+                logging.error(
+                    "❌ Discord login failed:\n\n"
+                    "  Failed to authenticate with Discord. This usually means:\n"
+                    "  1. The bot token in your config is invalid or expired\n"
+                    "  2. The bot token is missing\n\n"
+                    "  Please check your Discord bot token in config.yaml\n"
+                    "  or the DISCORD_BOT_TOKEN environment variable.\n\n"
+                )
+                logging.exception(f"Error details: {e}")
+            except Exception as e:
+                logging.exception(f"❌ Failed to start bot: {e}")
+
+        asyncio.run(runner())
+    except KeyboardInterrupt:
+        print("\n\nBot stopped by user.")
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass
+    main()
