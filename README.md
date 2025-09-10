@@ -1,9 +1,9 @@
 <h1 align="center">
-  AskOLMo
+  AskOlmo
 </h1>
 
 <h3 align="center"><i>
-Discord Bot for Ai2's OLMo Models
+Discord Bot for Ai2's Olmo Models
 </i></h3>
 <p align="center">
   <a href="https://discord.gg/sZq3jTNVNG">
@@ -17,7 +17,7 @@ Discord Bot for Ai2's OLMo Models
   </a>
 </p>
 
-AskOLMo is a Discord bot that brings Ai2's OLMo language models directly to your Discord server. Built specifically for interacting with OLMo models through [Cirrascale](https://ai2endpoints.cirrascale.ai/home) endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
+AskOLMo is a Discord bot that brings Ai2's Olmo language models directly to your Discord server. Built specifically for interacting with Olmo models through [Cirrascale](https://ai2endpoints.cirrascale.ai/home) endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
 
 ## Features
 
@@ -32,9 +32,9 @@ You can:
 ---
 
 ### Model switching with `/model`:
-Switch between different OLMo model variants:
+Switch between different Olmo model variants:
 
-**Available OLMo Models:**
+**Available Olmo Models:**
 - **OLMo-2-1124-13B-Instruct** - 13B parameter instruction-tuned model
 - **OLMo-2-0325-32B-Instruct** - 32B parameter instruction-tuned model (largest)
 - **OLMo-2-1124-7B-Instruct** - 7B parameter instruction-tuned model
@@ -91,7 +91,7 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
    discord:
      bot_token: "YOUR_DISCORD_BOT_TOKEN"
      client_id: "YOUR_DISCORD_CLIENT_ID"
-     status_message: "I am OLMo chatbot."
+     status_message: "I am Olmo chatbot."
      allowed_guild_ids: []  # Leave empty to allow all guilds
 
    limits:
@@ -177,7 +177,7 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
 ### Basic Commands
 - **Mention the bot** (`@AskOLMo`) in any channel to start a conversation
 - **Reply to bot messages** to continue the conversation thread
-- **Use `/model`** command to view or switch between available OLMo models (admin only)
+- **Use `/model`** command to view or switch between available Olmo models (admin only)
 
 ### Conversation Features
 - **Automatic threading**: Messages are linked together for context
@@ -198,7 +198,7 @@ The bot consists of several key components:
 - **`AskOLMoPermissionManager`**: Manages user, role, and channel permissions
 - **`AskOLMoRateLimiter`**: Enforces per-user message limits
 - **`AskOLMoMessageProcessor`**: Processes message chains and builds context
-- **`AskOLMoResponseGenerator`**: Generates streaming responses from OLMo models
+- **`AskOLMoResponseGenerator`**: Generates streaming responses from Olmo models
 - **`GoogleModerateText`**: Optional content safety checking
 
 ## Environment Variables
