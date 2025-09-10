@@ -12,12 +12,12 @@ Discord Bot for Ai2's Olmo Models
   <a href="https://playground.allenai.org">
     <img alt="Playground" src="https://img.shields.io/badge/Ai2-Playground-F0529C">
   </a>
-  <a href="https://github.com/allenai/AskOLMo/blob/main/LICENSE">
+  <a href="https://github.com/allenai/AskOlmo/blob/main/LICENSE">
     <img alt="GitHub License" src="https://img.shields.io/github/license/allenai/OLMo-core">
   </a>
 </p>
 
-AskOLMo is a Discord bot that brings Ai2's Olmo language models directly to your Discord server. Built specifically for interacting with Olmo models through [Cirrascale](https://ai2endpoints.cirrascale.ai/home) endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
+AskOlmo is a Discord bot that brings Ai2's Olmo language models directly to your Discord server. Built specifically for interacting with Olmo models through [Cirrascale](https://ai2endpoints.cirrascale.ai/home) endpoints, it provides a seamless chat experience with advanced features like conversation threading, rate limiting, and content moderation.
 
 ## Features
 
@@ -68,8 +68,8 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/allenai/AskOLMo.git
-   cd AskOLMo
+   git clone https://github.com/allenai/AskOlmo.git
+   cd AskOlmo
    ```
 
 2. **Install dependencies:**
@@ -175,7 +175,7 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
 ## Usage
 
 ### Basic Commands
-- **Mention the bot** (`@AskOLMo`) in any channel to start a conversation
+- **Mention the bot** (`@AskOlmo`) in any channel to start a conversation
 - **Reply to bot messages** to continue the conversation thread
 - **Use `/model`** command to view or switch between available Olmo models (admin only)
 
@@ -216,7 +216,7 @@ export DISCORD_ADMIN_IDS="user1,user2"
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
 
-AskOLMo uses ruff for style and correctness checks.
+AskOlmo uses ruff for style and correctness checks.
 
 ```sh
 # Lint checks
