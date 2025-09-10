@@ -194,11 +194,11 @@ All models are served through [Cirrascale](https://ai2endpoints.cirrascale.ai/ho
 
 The bot consists of several key components:
 
-- **`AskOLMoConfigManager`**: Handles YAML configuration and environment variables
-- **`AskOLMoPermissionManager`**: Manages user, role, and channel permissions
-- **`AskOLMoRateLimiter`**: Enforces per-user message limits
-- **`AskOLMoMessageProcessor`**: Processes message chains and builds context
-- **`AskOLMoResponseGenerator`**: Generates streaming responses from Olmo models
+- **`AskOlmoConfigManager`**: Handles YAML configuration and environment variables
+- **`AskOlmoPermissionManager`**: Manages user, role, and channel permissions
+- **`AskOlmoRateLimiter`**: Enforces per-user message limits
+- **`AskOlmoMessageProcessor`**: Processes message chains and builds context
+- **`AskOlmoResponseGenerator`**: Generates streaming responses from Olmo models
 - **`GoogleModerateText`**: Optional content safety checking
 
 ## Environment Variables

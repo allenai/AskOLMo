@@ -39,7 +39,7 @@ MAX_MESSAGE_NODES = 500
 
 
 @dataclass
-class AskOLMoMsgNode:
+class AskOlmoMsgNode:
     """
     Node representing a message in the conversation chain.
     """
@@ -58,7 +58,7 @@ class AskOLMoMsgNode:
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 
-class AskOLMoConfigManager:
+class AskOlmoConfigManager:
     """
     This class manages the configuration for the Discord bot.
     """
@@ -204,7 +204,7 @@ class AskOLMoConfigManager:
             )
 
         if errors:
-            error_message = "\n\n❌ Configuration Error(s):\n\n"
+            error_message = "\n\n Configuration Error(s):\n\n"
             for i, error in enumerate(errors, 1):
                 error_message += f"  {i}. {error}\n\n"
             error_message += (
@@ -223,7 +223,7 @@ class AskOLMoConfigManager:
         return self._config
 
 
-class AskOLMoRateLimiter:
+class AskOlmoRateLimiter:
     """
     Rate limiter to enforce message limits per user per hour.
     """
@@ -275,7 +275,7 @@ class AskOLMoRateLimiter:
             del self.user_message_history[user_id]
 
 
-class AskOLMoPermissionManager:
+class AskOlmoPermissionManager:
     """
     Manages user and channel permissions for the Discord bot.
     """
@@ -340,13 +340,13 @@ class AskOLMoPermissionManager:
         return not is_bad_channel
 
 
-class AskOLMoResponseGenerator:
+class AskOlmoResponseGenerator:
     """
     Generates responses for Discord messages using Ai2 models through Cirrascale.
     """
 
     def __init__(
-        self, config: dict[str, Any], message_processor: "AskOLMoMessageProcessor"
+        self, config: dict[str, Any], message_processor: "AskOlmoMessageProcessor"
     ):
         self.config = config
         self.httpx_client = httpx.AsyncClient()
@@ -472,7 +472,7 @@ class AskOLMoResponseGenerator:
                                 )
                                 response_msgs.append(response_msg)
 
-                                node = AskOLMoMsgNode(parent_msg=new_msg)
+                                node = AskOlmoMsgNode(parent_msg=new_msg)
                                 self.message_processor.msg_nodes[response_msg.id] = node
                                 await node.lock.acquire()
                             else:
@@ -492,7 +492,7 @@ class AskOLMoResponseGenerator:
                         )
                         response_msgs.append(response_msg)
 
-                        node = AskOLMoMsgNode(parent_msg=new_msg)
+                        node = AskOlmoMsgNode(parent_msg=new_msg)
                         self.message_processor.msg_nodes[response_msg.id] = node
                         await node.lock.acquire()
 
@@ -502,7 +502,7 @@ class AskOLMoResponseGenerator:
         return response_msgs, response_contents
 
 
-class AskOLMoMessageProcessor:
+class AskOlmoMessageProcessor:
     def __init__(self, config: dict[str, Any]):
         self.config = config
         self.msg_nodes = {}
@@ -528,7 +528,7 @@ class AskOLMoMessageProcessor:
         curr_msg = new_msg
 
         while curr_msg is not None and len(messages) < max_messages:
-            curr_node = self.msg_nodes.setdefault(curr_msg.id, AskOLMoMsgNode())
+            curr_node = self.msg_nodes.setdefault(curr_msg.id, AskOlmoMsgNode())
 
             async with curr_node.lock:
                 if curr_node.text is None:
@@ -561,7 +561,7 @@ class AskOLMoMessageProcessor:
     async def _process_message_content(
         self,
         curr_msg: discord.Message,
-        curr_node: AskOLMoMsgNode,
+        curr_node: AskOlmoMsgNode,
         bot_user: discord.ClientUser,
     ):
         cleaned_content = curr_msg.content.removeprefix(bot_user.mention).lstrip()
@@ -614,7 +614,7 @@ class AskOLMoMessageProcessor:
     async def _find_parent_message(
         self,
         curr_msg: discord.Message,
-        curr_node: AskOLMoMsgNode,
+        curr_node: AskOlmoMsgNode,
         bot_user: discord.ClientUser,
     ):
         try:
@@ -675,7 +675,7 @@ class AskOLMoMessageProcessor:
             curr_node.fetch_parent_failed = True
 
     def _build_message_content(
-        self, curr_node: AskOLMoMsgNode, max_text: int, max_images: int
+        self, curr_node: AskOlmoMsgNode, max_text: int, max_images: int
     ):
         if curr_node.images[:max_images]:
             content = (
@@ -692,7 +692,7 @@ class AskOLMoMessageProcessor:
 
     def _collect_warnings(
         self,
-        curr_node: AskOLMoMsgNode,
+        curr_node: AskOlmoMsgNode,
         max_text: int,
         max_images: int,
         messages_len: int,
@@ -752,16 +752,16 @@ class AskOLMoMessageProcessor:
                 self.msg_nodes[response_msg.id].lock.release()
 
 
-class AskOLMo:
+class AskOlmo:
     def __init__(self, config_file: str = "config.yaml"):
-        self.config_manager = AskOLMoConfigManager(config_file)
+        self.config_manager = AskOlmoConfigManager(config_file)
         self.config = self.config_manager.config
         self.curr_model = next(iter(self.config["models"]))
 
-        self.permission_manager = AskOLMoPermissionManager(self.config)
-        self.rate_limiter = AskOLMoRateLimiter(self.config)
-        self.message_processor = AskOLMoMessageProcessor(self.config)
-        self.response_generator = AskOLMoResponseGenerator(
+        self.permission_manager = AskOlmoPermissionManager(self.config)
+        self.rate_limiter = AskOlmoRateLimiter(self.config)
+        self.message_processor = AskOlmoMessageProcessor(self.config)
+        self.response_generator = AskOlmoResponseGenerator(
             self.config, self.message_processor
         )
 
@@ -889,7 +889,7 @@ class AskOLMo:
         )
 
         config = await self.config_manager.reload_config()
-        self.permission_manager = AskOLMoPermissionManager(config)
+        self.permission_manager = AskOlmoPermissionManager(config)
 
         if not self.permission_manager.check_user_permissions(
             new_msg.author,
@@ -1015,7 +1015,7 @@ def main() -> None:
         # Initialize the bot and validate configuration
         async def runner():
             try:
-                bot = AskOLMo()
+                bot = AskOlmo()
             except Exception as e:
                 logging.exception(f"Unexpected initialization error: {e}")
                 return
@@ -1024,7 +1024,7 @@ def main() -> None:
                 await bot.start()
             except discord.LoginFailure as e:
                 logging.error(
-                    "❌ Discord login failed:\n\n"
+                    "  Discord login failed:\n\n"
                     "  Failed to authenticate with Discord. This usually means:\n"
                     "  1. The bot token in your config is invalid or expired\n"
                     "  2. The bot token is missing\n\n"
@@ -1033,7 +1033,7 @@ def main() -> None:
                 )
                 logging.exception(f"Error details: {e}")
             except Exception as e:
-                logging.exception(f"❌ Failed to start bot: {e}")
+                logging.exception(f"Failed to start bot: {e}")
 
         asyncio.run(runner())
     except KeyboardInterrupt:

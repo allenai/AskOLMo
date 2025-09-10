@@ -6,7 +6,7 @@ discord:
   client_id: ""  # Or set DISCORD_CLIENT_ID environment variable
 
   # Bot status message shown in Discord
-  status_message: I am OLMo chatbot.
+  status_message: I am Olmo chatbot.
 
   # Optional: List of Discord guild (server) IDs where the bot is allowed
   # Leave empty to allow all guilds where the bot is invited
